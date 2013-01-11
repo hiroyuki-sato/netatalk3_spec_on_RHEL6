@@ -1,4 +1,4 @@
-spec file for nettalk3 on RHEL6. 
+Spec file for netatalk on RHEL6. 
 ===============================
 
 Overview 
