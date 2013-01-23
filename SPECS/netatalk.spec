@@ -1,5 +1,5 @@
 Name:	netatalk	
-Version: 3.0.1
+Version: 3.0.2
 Release: 1%{?dist}
 Summary: Netatalk is a freely-available Open Source AFP fileserver. 
 Group: System Environment/Daemons
@@ -65,6 +65,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
+%config(noreplace) %{_sysconfdir}/extmap.conf
 %config(noreplace) %{_sysconfdir}/afp.conf
 %config(noreplace) %{_sysconfdir}/pam.d/netatalk
 %{_sbindir}/*
@@ -99,5 +100,8 @@ rm -rf %{buildroot}
 %doc
 
 %changelog
+* Fri Jan 23 2013 Hiroyuki Sato <hiroysato at gmail.com> 
+- Update for netatalk-3.0.2. Thanks Svavar Orn.
+
 * Fri Jan 11 2013 Initial Hiroyuki Sato <hiroysato at gmail.com> 
 - Initial version.
