@@ -1,9 +1,0 @@
---- distrib/initscripts/Makefile.in.org	2013-01-11 11:59:58.796148690 +0900
-+++ distrib/initscripts/Makefile.in	2013-01-11 12:01:01.737152812 +0900
-@@ -649,6 +649,7 @@
- 	sed -e s@:BINDIR:@${bindir}@ \
- 	    -e s@:SBINDIR:@${sbindir}@ \
- 	    -e s@:ETCDIR:@${pkgconfdir}@ \
-+	    -e s@:LIBDIR:@${libdir}@ \
- 	    -e s@:NETATALK_VERSION:@${NETATALK_VERSION}@ \
- 	    <$< >$@

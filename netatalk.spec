@@ -1,13 +1,11 @@
 Name:	netatalk	
 Version: 3.0.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: Netatalk is a freely-available Open Source AFP fileserver. 
 Group: System Environment/Daemons
 License: GPL2	
 URL: http://netatalk.sourceforge.net/
 Source0: http://download.sourceforge.net/netatalk/netatalk-%{version}.tar.bz2
-Patch0: netatalk-avoid-libevent-conflist.patch
-Patch1: netatalk-avoid-libevent-conflist2.patch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: cracklib-devel openssl-devel pam quota-devel libtool automake
 BuildRequires: autoconf db4-devel pam-devel tcp_wrappers-devel libgcrypt-devel
@@ -27,13 +25,13 @@ Headers for Netatalk
 
 %prep
 %setup -q
-%patch0  -p0 
-%patch1  -p0 
 
 %build
-./configure --with-init-style=redhat-sysv \
+#env LDFLAGS="-Wl,-R%{_libdir}/netatalk"  \
+  ./configure --with-init-style=redhat-sysv \
   --bindir=%{_bindir} \
-  --libdir=%{_libdir} \
+  --libdir=%{_libdir}/netatalk \
+  --with-uams-path=%{_libdir}/netatalk \
   --sbindir=%{_sbindir} \
   --sysconfdir=%{_sysconfdir} \
   --mandir=%{_mandir} \
@@ -41,7 +39,13 @@ Headers for Netatalk
   --includedir=%{_includedir} \
   --datarootdir=%{_datarootdir} 
 
-make %{?_smp_mflags}
+#
+# Add Library search path for libevent.
+#
+perl -i -pe 's!^LDFLAGS = !LDFLAGS = -rpath %{_libdir}/netatalk!' \
+  etc/netatalk/Makefile
+
+make
 
 %install
 rm -rf %{buildroot}
@@ -50,15 +54,6 @@ make install DESTDIR=%{buildroot}
 # Clean up .a and .la files
 find $RPM_BUILD_ROOT -name \*.a -exec rm {} \;
 find $RPM_BUILD_ROOT -name \*.la -exec rm {} \;
-
-#
-# TODO:
-#
-#  move libevent libraries to lib/netatalk directory 
-#  for avoid conflict libevent libraries
-#  
-#
-mv $RPM_BUILD_ROOT/%{_libdir}/libevent* $RPM_BUILD_ROOT/%{_libdir}/netatalk
 
 %clean
 rm -rf %{buildroot}
@@ -73,8 +68,6 @@ rm -rf %{buildroot}
 %exclude %{_bindir}/netatalk-config
 %{_mandir}/man*/*
 %exclude %{_mandir}/man*/netatalk-config*
-%{_libdir}/*.so
-%{_libdir}/*.so.*
 %{_libdir}/netatalk/*
 %{_var}/netatalk/*
 %{_sysconfdir}/rc.d/init.d/netatalk
@@ -94,14 +87,17 @@ rm -rf %{buildroot}
 # TODO: How to deal these files.
 #
 %exclude %{_includedir}/event2
-%exclude /usr/lib64/pkgconfig
+%exclude %{_libdir}/netatalk/pkgconfig
 %exclude /usr/include/ev*
 
 %doc
 
 %changelog
 * Fri Jan 23 2013 Hiroyuki Sato <hiroysato at gmail.com> 
-- Update for netatalk-3.0.2. Thanks Svavar Orn.
+- patch removed. libevent search automatically. Thanks HAT.
+
+* Fri Jan 23 2013 Hiroyuki Sato <hiroysato at gmail.com> 
+- Update for 3.0.2. Thanks Svavar Orn.
 
 * Fri Jan 11 2013 Initial Hiroyuki Sato <hiroysato at gmail.com> 
 - Initial version.
