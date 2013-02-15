@@ -1,0 +1,22 @@
+--- libevent/Makefile.org	2013-02-15 23:31:24.366042603 +0900
++++ libevent/Makefile	2013-02-15 23:31:51.943046925 +0900
+@@ -580,7 +580,7 @@
+ #NO_UNDEFINED = -no-undefined
+ MAYBE_CORE = 
+ #MAYBE_CORE = libevent_core.la
+-GENERIC_LDFLAGS = -version-info $(VERSION_INFO) $(RELEASE) $(NO_UNDEFINED)
++GENERIC_LDFLAGS = -static
+ libevent_la_SOURCES = $(CORE_SRC) $(EXTRA_SRC)
+ libevent_la_LIBADD =  $(SYS_LIBS)
+ libevent_la_LDFLAGS = $(GENERIC_LDFLAGS)
+@@ -1198,8 +1198,8 @@
+ 	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(includedir)"; do \
+ 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+ 	done
+-install: $(BUILT_SOURCES)
+-	$(MAKE) $(AM_MAKEFLAGS) install-recursive
++install: 
++	
+ install-exec: install-exec-recursive
+ install-data: install-data-recursive
+ uninstall: uninstall-recursive
