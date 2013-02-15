@@ -1,6 +1,6 @@
 Summary: AppleTalk networking programs
 Name:    netatalk
-Version: 2.2.4
+Version: 3.0.2
 Release: 0.0.1%{?dist}
 Epoch:   4
 License: GPLv2+
@@ -62,17 +62,16 @@ export CFLAGS="$CFLAGS -fsigned-char"
 %endif
 
 %configure \
-	--with-pkgconfdir=/etc/netatalk/ \
-	--with-cracklib \
-        --with-pam \
-	--with-shadow \
-	--with-uams-path=%{_libdir}/atalk \
-	--enable-shared \
-        --enable-krbV-uam \
-        --enable-overwrite \
-        --with-gnu-ld \
-	--enable-redhat-sysv \
-	--with-libgcrypt
+  --with-init-style=redhat-sysv \
+  --bindir=%{_bindir} \
+  --libdir=%{_libdir}/netatalk \
+  --with-uams-path=%{_libdir}/netatalk \
+  --sbindir=%{_sbindir} \
+  --sysconfdir=%{_sysconfdir} \
+  --mandir=%{_mandir} \
+  --localstatedir=%{_var} \
+  --includedir=%{_includedir} \
+  --datarootdir=%{_datarootdir} 
 
 # Grrrr. Fix broken libtool/autoFOO Makefiles.
 if [ "%{_lib}" != lib ]; then
@@ -87,24 +86,7 @@ make %{?_smp_mflags} all
 %install
 rm -rf $RPM_BUILD_ROOT
 
-make DESTDIR=$RPM_BUILD_ROOT mandir=%{_mandir} install
- 
-# install example config files in doc
-mkdir config.example
-cp -fp config/afpd.conf config.example
-cp -fp config/AppleVolumes.system config.example
-cp -fp config/AppleVolumes.default config.example
-cp -fp config/atalkd.conf config.example
-cp -fp config/atalkd.conf $RPM_BUILD_ROOT%{_sysconfdir}/netatalk
-cp -fp config/netatalk.conf config.example
-cp -fp config/papd.conf config.example
-cp -fp config/papd.conf $RPM_BUILD_ROOT%{_sysconfdir}/netatalk
-mkdir -p $RPM_BUILD_ROOT/usr/share/netatalk
-cp -fp etc/psf/pagecount.ps $RPM_BUILD_ROOT/usr/share/netatalk
-
-cp -fp %{SOURCE2} config.example
-# XXX bad hack until this file is updated in glibc-headers:
-rm -f $RPM_BUILD_ROOT/usr/include/netatalk/at.h
+make install DESTDIR=%{buildroot}
 
 # Clean up .a and .la files
 find $RPM_BUILD_ROOT -name \*.a -exec rm {} \;
@@ -133,41 +115,41 @@ fi
 /sbin/ldconfig
 
 %files
-%defattr(-,root,root)
-%doc COPYRIGHT COPYING ChangeLog VERSION NEWS 
-%doc doc
-%doc config.example
-%dir %{_sysconfdir}/netatalk
-%attr(755,root,root) %{_initrddir}/netatalk
-%config(noreplace) %{_sysconfdir}/netatalk/AppleVolumes.default
-%config(noreplace) %{_sysconfdir}/netatalk/AppleVolumes.system
-%config(noreplace) %{_sysconfdir}/netatalk/netatalk.conf
-%config(noreplace) %{_sysconfdir}/netatalk/afpd.conf
-%config(noreplace) %{_sysconfdir}/netatalk/atalkd.conf
-%config(noreplace) %{_sysconfdir}/netatalk/papd.conf
-%config(noreplace) %{_sysconfdir}/netatalk/afp_ldap.conf
+%defattr(-,root,root,-)
+%config(noreplace) %{_sysconfdir}/extmap.conf
+%config(noreplace) %{_sysconfdir}/afp.conf
 %config(noreplace) %{_sysconfdir}/pam.d/netatalk
 %{_sbindir}/*
 %{_bindir}/*
 %exclude %{_bindir}/netatalk-config
 %{_mandir}/man*/*
 %exclude %{_mandir}/man*/netatalk-config*
-%{_datadir}/netatalk
-%dir %{_libdir}/atalk
-%{_libdir}/atalk/*.so
+%{_libdir}/netatalk/*
+%{_var}/netatalk/*
+%{_sysconfdir}/rc.d/init.d/netatalk
+#
+# TODO: How to deal this script.
+#
+%exclude %{_bindir}/event_rpcgen.py
 
 %files devel
 %defattr(-,root,root)
-%doc COPYRIGHT COPYING
 %dir %{_includedir}/atalk
-%dir %{_includedir}/netatalk
 %attr(0644,root,root) %{_includedir}/atalk/*
-%attr(0644,root,root) %{_includedir}/netatalk/*
 %{_datadir}/aclocal/netatalk.m4
 %{_bindir}/netatalk-config
 %{_mandir}/man*/netatalk-config.1*
+#
+# TODO: How to deal these files.
+#
+%exclude %{_includedir}/event2
+%exclude %{_libdir}/netatalk/pkgconfig
+%exclude /usr/include/ev*
 
 %changelog
+* Fri Feb 15 2013 Hiroyuki Sato <hiroysato at gmail.com>
+- updated to upstream 3.0.2
+
 * Fri Oct 19 2012 HAT <hat@fa2.so-net.ne.jp> - 4:2.2.4-0.0.1
 - updated to upstream 2.2.4
 
