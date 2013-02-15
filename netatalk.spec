@@ -6,11 +6,12 @@ Epoch:   4
 License: GPLv2+
 Group:   System Environment/Daemons
 Source0: http://download.sourceforge.net/netatalk/netatalk-%{version}.tar.bz2
-# Source1: atalk.init
-Source2: netatalk.pam-system-auth
 
-Patch1:  netatalk-2.0.2-uams_no_pie.patch
-Patch2:  netatalk-2.0.4-extern_ucreator.patch
+#
+# Temporary
+#  compile libevent2 statically.
+#
+Source1: libevent.patch
 
 Url:	 http://netatalk.sourceforge.net/
 Requires: pam
@@ -39,18 +40,17 @@ programs.
 %prep
 %setup -q
 
-%patch1  -p1 -b .uams_no_pie
-%patch2  -p1 -b .extern_ucreator
-
-ln -s ./NEWS ChangeLog
-
 %build
-touch AUTHORS
-libtoolize --force
-aclocal -I macros
-automake --add-missing
-autoconf
-autoheader
+# Commented autoconf too old.
+# Build fail if regenrate configure script.
+#   https://gist.github.com/hiroyuki-sato/4960699
+#
+#touch AUTHORS
+#libtoolize --force
+#aclocal -I macros
+#automake --add-missing
+#autoconf
+#autoheader
 export CFLAGS="$RPM_OPT_FLAGS"
 %ifnarch x86_64
 # XXX : enable for x86_64 when glibc bug 149284 is fixed!
@@ -72,6 +72,11 @@ export CFLAGS="$CFLAGS -fsigned-char"
   --localstatedir=%{_var} \
   --includedir=%{_includedir} \
   --datarootdir=%{_datarootdir} 
+
+#
+# temporary until release 3.0.3
+#
+patch -p0 < %{SOURCE1}
 
 # Grrrr. Fix broken libtool/autoFOO Makefiles.
 if [ "%{_lib}" != lib ]; then
@@ -127,10 +132,6 @@ fi
 %{_libdir}/netatalk/*
 %{_var}/netatalk/*
 %{_sysconfdir}/rc.d/init.d/netatalk
-#
-# TODO: How to deal this script.
-#
-%exclude %{_bindir}/event_rpcgen.py
 
 %files devel
 %defattr(-,root,root)
@@ -139,12 +140,6 @@ fi
 %{_datadir}/aclocal/netatalk.m4
 %{_bindir}/netatalk-config
 %{_mandir}/man*/netatalk-config.1*
-#
-# TODO: How to deal these files.
-#
-%exclude %{_includedir}/event2
-%exclude %{_libdir}/netatalk/pkgconfig
-%exclude /usr/include/ev*
 
 %changelog
 * Fri Feb 15 2013 Hiroyuki Sato <hiroysato at gmail.com>
