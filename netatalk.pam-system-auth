@@ -1,0 +1,10 @@
+# /etc/pam.d/netatalk
+#
+# PAM configuration file for netatalk using system-auth substack
+# (this would enable use of netatalk by LDAP or NIS users).
+#
+auth       include      system-auth
+account    required     pam_nologin.so
+account    include      system-auth
+password   include      system-auth
+session    include      system-auth

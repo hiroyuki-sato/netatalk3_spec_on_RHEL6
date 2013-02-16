@@ -6,6 +6,7 @@ Epoch:   4
 License: GPLv2+
 Group:   System Environment/Daemons
 Source0: http://download.sourceforge.net/netatalk/netatalk-%{version}.tar.bz2
+Source2: netatalk.pam-system-auth
 
 #
 # Temporary
