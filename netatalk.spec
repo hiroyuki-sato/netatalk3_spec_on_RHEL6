@@ -1,7 +1,7 @@
-Summary: AppleTalk networking programs
+Summary: AFP fileserver for Macintosh clients
 Name:    netatalk
 Version: 3.0.2
-Release: 0.0.1%{?dist}
+Release: 0.0.2%{?dist}
 Epoch:   4
 License: GPLv2+
 Group:   System Environment/Daemons
@@ -12,7 +12,8 @@ Source2: netatalk.pam-system-auth
 # Temporary
 #  compile libevent2 statically.
 #
-Source1: libevent.patch
+Patch0: netatalk-3.0.2-rc.patch
+Patch1: netatalk-3.0.2-libevent.patch
 
 Url:	 http://netatalk.sourceforge.net/
 Requires: pam
@@ -26,20 +27,24 @@ BuildRequires: avahi-devel libacl-devel openldap-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
-This package enables Linux to talk to Macintosh computers via the
-AppleTalk networking protocol. It includes a daemon to allow Linux
-to act as a file server over EtherTalk or IP for Mac's.
+Netatalk is a freely-available Open Source AFP fileserver. A *NIX/*BSD
+system running Netatalk is capable of serving many Macintosh clients
+simultaneously as an AppleShare file server (AFP).
 
 %package devel
-Summary: Headers for Appletalk development
+Summary: Headers for Netatalk development
 Group: Development/Libraries
 
 %description devel
-This package contains the header files for building Appletalk networking
-programs.
+This package contains the header files for Netatalk.
 
 %prep
 %setup -q
+
+#
+# temporary until release 3.0.3
+#
+%patch0  -p1 -b .rc
 
 %build
 # Commented autoconf too old.
@@ -63,21 +68,28 @@ export CFLAGS="$CFLAGS -fsigned-char"
 %endif
 
 %configure \
-  --with-init-style=redhat-sysv \
-  --bindir=%{_bindir} \
-  --libdir=%{_libdir}/netatalk \
-  --with-uams-path=%{_libdir}/netatalk \
-  --sbindir=%{_sbindir} \
-  --sysconfdir=%{_sysconfdir} \
-  --mandir=%{_mandir} \
-  --localstatedir=%{_var} \
-  --includedir=%{_includedir} \
-  --datarootdir=%{_datarootdir} 
+	--with-cracklib \
+	--with-pam \
+	--with-shadow \
+	--with-uams-path=%{_libdir}/netatalk \
+	--enable-shared \
+	--enable-krbV-uam \
+	--enable-overwrite \
+	--with-gnu-ld \
+	--with-init-style=redhat-sysv \
+	--with-libgcrypt \
+	--bindir=%{_bindir} \
+	--sbindir=%{_sbindir} \
+	--sysconfdir=%{_sysconfdir} \
+	--mandir=%{_mandir} \
+	--localstatedir=%{_var} \
+	--includedir=%{_includedir} \
+	-datarootdir=%{_datarootdir} 
 
 #
 # temporary until release 3.0.3
 #
-patch -p0 < %{SOURCE1}
+patch -p0 < %{PATCH1}
 
 # Grrrr. Fix broken libtool/autoFOO Makefiles.
 if [ "%{_lib}" != lib ]; then
@@ -102,6 +114,12 @@ find $RPM_BUILD_ROOT -name \*.la -exec rm {} \;
 rm -rf $RPM_BUILD_ROOT
 
 %post
+if [ -e /etc/netatalk/afp_signature.conf -a ! -e /var/netatalk/afp_signature.conf ]; then
+  mv -f /etc/netatalk/afp_signature.conf /var/netatalk/
+fi
+if [ -e /etc/netatalk/afp_voluuid.conf -a ! -e /var/netatalk/afp_voluuid.conf ]; then
+  mv -f /etc/netatalk/afp_voluuid.conf /var/netatalk/
+fi
 /sbin/chkconfig --add netatalk
 /sbin/ldconfig
 
@@ -109,14 +127,20 @@ rm -rf $RPM_BUILD_ROOT
 if [ "$1" = "0" ] ; then
   # check for existence due to renaming initscritp
   if [ -x  %{_initrddir}/netatalk ] ; then
-    /sbin/service atalk stop > /dev/null 2>&1
+    /sbin/service netatalk stop > /dev/null 2>&1
     /sbin/chkconfig --del netatalk
   fi
 fi
 
 %postun
+if [ -e /etc/netatalk/afp_signature.conf -a ! -e /var/netatalk/afp_signature.conf ]; then
+  mv -f /etc/netatalk/afp_signature.conf /var/netatalk/
+fi
+if [ -e /etc/netatalk/afp_voluuid.conf -a ! -e /var/netatalk/afp_voluuid.conf ]; then
+  mv -f /etc/netatalk/afp_voluuid.conf /var/netatalk/
+fi
 if [ "$1" -ge "1" ]; then
-  /sbin/service atalk condrestart > /dev/null 2>&1 || :
+  /sbin/service netatalk condrestart > /dev/null 2>&1 || :
 fi
 /sbin/ldconfig
 
@@ -131,6 +155,7 @@ fi
 %{_mandir}/man*/*
 %exclude %{_mandir}/man*/netatalk-config*
 %{_libdir}/netatalk/*
+%{_libdir}/*
 %{_var}/netatalk/*
 %{_sysconfdir}/rc.d/init.d/netatalk
 
@@ -143,8 +168,14 @@ fi
 %{_mandir}/man*/netatalk-config.1*
 
 %changelog
-* Fri Feb 15 2013 Hiroyuki Sato <hiroysato at gmail.com>
-- updated to upstream 3.0.2
+* Tue Feb 19 2013 HAT <hat@fa2.so-net.ne.jp> - 4:3.0.2-0.0.2
+- small fixes
+
+* Fri Feb 15 2013 Hiroyuki Sato <hiroysato at gmail.com> -4:3.0.2-0.0.1
+- bump version
+
+* Fri Jan 23 2013 Hiroyuki Sato <hiroysato at gmail.com> 
+- Update for 3.0.2. Thanks Svavar Orn.
 
 * Fri Oct 19 2012 HAT <hat@fa2.so-net.ne.jp> - 4:2.2.4-0.0.1
 - updated to upstream 2.2.4
