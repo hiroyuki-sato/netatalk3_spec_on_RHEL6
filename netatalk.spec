@@ -84,7 +84,7 @@ export CFLAGS="$CFLAGS -fsigned-char"
 	--mandir=%{_mandir} \
 	--localstatedir=%{_var} \
 	--includedir=%{_includedir} \
-	-datarootdir=%{_datarootdir} 
+	--datarootdir=%{_datarootdir} 
 
 #
 # temporary until release 3.0.3
