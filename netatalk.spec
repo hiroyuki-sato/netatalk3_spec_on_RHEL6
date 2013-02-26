@@ -8,12 +8,6 @@ Group:   System Environment/Daemons
 Source0: http://download.sourceforge.net/netatalk/netatalk-%{version}.tar.bz2
 Source2: netatalk.pam-system-auth
 
-#
-# Temporary
-#  compile libevent2 statically.
-#
-Patch0: netatalk-3.0.2-rc.patch
-
 Url:	 http://netatalk.sourceforge.net/
 Requires: pam
 Requires(post): /sbin/chkconfig /sbin/ldconfig
