@@ -80,8 +80,8 @@ export CFLAGS="$CFLAGS -fsigned-char"
 	--localstatedir=%{_var} \
 	--includedir=%{_includedir} \
 	--datarootdir=%{_datarootdir} \
-    --with-pam-confdir=%{_sysconfdir}/pam.d \
-    --with-dbus-sysconf-dir=%{_sysconfdir}/dbus-1/system.d
+	--with-pam-confdir=%{_sysconfdir}/pam.d \
+	--with-dbus-sysconf-dir=%{_sysconfdir}/dbus-1/system.d
 
 
 # Grrrr. Fix broken libtool/autoFOO Makefiles.
