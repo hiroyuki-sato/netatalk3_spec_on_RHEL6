@@ -1,7 +1,7 @@
 Summary: AFP fileserver for Macintosh clients
 Name:    netatalk
-Version: 3.0.2
-Release: 0.0.2%{?dist}
+Version: 3.0.3
+Release: 0.0.1%{?dist}
 Epoch:   4
 License: GPLv2+
 Group:   System Environment/Daemons
@@ -13,7 +13,6 @@ Source2: netatalk.pam-system-auth
 #  compile libevent2 statically.
 #
 Patch0: netatalk-3.0.2-rc.patch
-Patch1: netatalk-3.0.2-libevent.patch
 
 Url:	 http://netatalk.sourceforge.net/
 Requires: pam
@@ -24,6 +23,7 @@ Requires(postun): /sbin/service /sbin/ldconfig
 BuildRequires: cracklib-devel openssl-devel pam quota-devel libtool automake
 BuildRequires: autoconf db4-devel pam-devel tcp_wrappers-devel libgcrypt-devel
 BuildRequires: avahi-devel libacl-devel openldap-devel
+BuildRequires: dbus-devel dbus-glib-devel glib2-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
@@ -40,11 +40,6 @@ This package contains the header files for Netatalk.
 
 %prep
 %setup -q
-
-#
-# temporary until release 3.0.3
-#
-%patch0  -p1 -b .rc
 
 %build
 # Commented autoconf too old.
@@ -84,12 +79,10 @@ export CFLAGS="$CFLAGS -fsigned-char"
 	--mandir=%{_mandir} \
 	--localstatedir=%{_var} \
 	--includedir=%{_includedir} \
-	--datarootdir=%{_datarootdir} 
+	--datarootdir=%{_datarootdir} \
+    --with-pam-confdir=%{_sysconfdir}/pam.d \
+    --with-dbus-sysconf-dir=%{_sysconfdir}/dbus-1/system.d
 
-#
-# temporary until release 3.0.3
-#
-patch -p0 < %{PATCH1}
 
 # Grrrr. Fix broken libtool/autoFOO Makefiles.
 if [ "%{_lib}" != lib ]; then
@@ -168,6 +161,9 @@ fi
 %{_mandir}/man*/netatalk-config.1*
 
 %changelog
+* Fri Feb 27 2013 Hiroyuki Sato <hiroysato at gmail.com> -4:3.0.3-0.0.1
+- bump version
+
 * Tue Feb 19 2013 HAT <hat@fa2.so-net.ne.jp> - 4:3.0.2-0.0.2
 - small fixes
 
