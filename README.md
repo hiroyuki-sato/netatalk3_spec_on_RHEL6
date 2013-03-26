@@ -2,12 +2,7 @@ Spec file for netatalk3 on RHEL6.
 =================================
 
 
-Overview 
---------
+Contents moved. 
+---------------
 
-This is spec file for netatalk 3.0.2 on RHEL6.
-
-Author
------
-
-hiroysato at gmail.com
+[Netatalk 3.0.3 SRPM for Fedora/Scientific Linux/CentOS](http://www003.upp.so-net.ne.jp/hat/netatalk/rpm.html)  
